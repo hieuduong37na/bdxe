@@ -1,4 +1,4 @@
-!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
@@ -25,10 +25,10 @@
         .error { background-color: #f8d7da; color: #721c24; }
         .loading { background-color: #e2e3e5; color: #383d41; }
         
-        /* Gợi ý hạng mục */
         .suggestions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
         .tag { background: #e9ecef; padding: 5px 12px; border-radius: 15px; font-size: 13px; cursor: pointer; transition: background 0.2s; }
         .tag:hover { background: #007bff; color: white; }
+        .highlight-box { background: #f8f9fa; padding: 15px; border-radius: 6px; border: 1px dashed #ced4da; }
     </style>
 </head>
 <body>
@@ -58,6 +58,12 @@
             <input type="text" id="bienSo" placeholder="VD: 60A-123.45" required style="text-transform: uppercase;">
         </div>
 
+        <!-- MỚI THÊM: Ngày thực hiện -->
+        <div class="form-group">
+            <label>Ngày thực hiện:</label>
+            <input type="date" id="ngayThucHien" required>
+        </div>
+
         <div class="form-group">
             <label>Số Km ODO trên đồng hồ:</label>
             <input type="number" id="soKm" placeholder="VD: 15500" required>
@@ -66,8 +72,19 @@
         <div class="form-group">
             <label>Hạng mục thực hiện:</label>
             <input type="text" id="hangMuc" placeholder="Gõ hoặc chọn gợi ý bên dưới..." required>
-            <div class="suggestions" id="tagContainer">
-                <!-- Các nút tag sẽ được render bằng Javascript -->
+            <div class="suggestions" id="tagContainer"></div>
+        </div>
+
+        <div class="form-group highlight-box">
+            <label style="color: #d9534f;">Thiết lập nhắc nhở tự động:</label>
+            <div class="radio-group">
+                <label><input type="radio" name="tanSuat" value="Ít" checked onchange="toggleKmInput()"> Xe đi ít (Nhắc sau 6 tháng)</label>
+                <label><input type="radio" name="tanSuat" value="Nhiều" onchange="toggleKmInput()"> Xe đi nhiều (Nhắc theo ODO)</label>
+            </div>
+            
+            <div id="kmTrungBinhDiv" style="display: none; margin-top: 15px;">
+                <label>Số Km đi trung bình 1 ngày (Ước tính):</label>
+                <input type="number" id="kmTrungBinh" placeholder="VD: 30 (Mỗi ngày đi làm 30km)">
             </div>
         </div>
 
@@ -87,20 +104,21 @@
 </div>
 
 <script>
-    // === THAY URL WEB APP CỦA BẠN VÀO ĐÂY ===
+    // === ĐIỀN URL WEB APP CỦA BẠN VÀO ĐÂY ===
     const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyLd_3MpTHmZjqPdcLADnI53OOAaIezAKSXom8G7Ffonjc2oaRWcQFVVWEcykljoepaHw/exec';
-    // =========================================
+    // =======================================
+
+    // Tự động set Ngày thực hiện là hôm nay
+    document.getElementById('ngayThucHien').valueAsDate = new Date();
 
     const hangMucInput = document.getElementById('hangMuc');
     const tagContainer = document.getElementById('tagContainer');
 
-    // Tags gợi ý dựa theo loại động cơ
-    const tagsXang = ["Thay nhớt máy", "Thay nhớt láp", "Vệ sinh nồi", "Thay lọc gió", "Bơm lốp", "Thay má phanh"];
-    const tagsDien = ["Thay dầu láp (hộp số)", "Kiểm tra pin LFP", "Bơm lốp", "Thay má phanh", "Kiểm tra phuộc"];
+    const tagsXang = ["Thay nhớt máy", "Thay nhớt láp", "Vệ sinh nồi", "Thay lọc gió", "Bơm lốp", "Thay phanh"];
+    const tagsDien = ["Thay dầu láp (hộp số)", "Kiểm tra pin LFP", "Bơm lốp", "Thay phanh", "Kiểm tra phuộc"];
 
-    // Hàm cập nhật nút bấm gợi ý
     function updateTags() {
-        tagContainer.innerHTML = ''; // Xóa cũ
+        tagContainer.innerHTML = ''; 
         const isDien = document.querySelector('input[name="dongCo"][value="Xe Điện"]').checked;
         const currentTags = isDien ? tagsDien : tagsXang;
 
@@ -109,7 +127,6 @@
             span.className = 'tag';
             span.innerText = tag;
             span.onclick = () => {
-                // Nếu input đã có chữ rồi thì không cộng dồn, thay thế luôn
                 if(hangMucInput.value && hangMucInput.value.length > 2) {
                      hangMucInput.value = hangMucInput.value + ", " + tag;
                 } else {
@@ -120,52 +137,56 @@
         });
     }
 
-    // Chạy lần đầu để nạp tag cho xe xăng
+    function toggleKmInput() {
+        const val = document.querySelector('input[name="tanSuat"]:checked').value;
+        const div = document.getElementById('kmTrungBinhDiv');
+        div.style.display = (val === 'Nhiều') ? 'block' : 'none';
+        if (val === 'Ít') document.getElementById('kmTrungBinh').value = '';
+    }
+
     updateTags();
 
-    // Xử lý gửi Form
     document.getElementById('maintenanceForm').addEventListener('submit', function(e) {
         e.preventDefault();
         
         const btn = document.getElementById('submitBtn');
         const statusDiv = document.getElementById('status');
         
-        // Lấy loại động cơ để nối vào loại xe cho rõ ràng
         const dongCo = document.querySelector('input[name="dongCo"]:checked').value;
         const loaiXeHienTai = document.getElementById('loaiXe').value;
         
+        // Lấy ngày, chuyển format yyyy-mm-dd sang dd/MM/yyyy để App Script dễ nhận
+        const ngayGoc = document.getElementById('ngayThucHien').value;
+        const ngayArray = ngayGoc.split('-'); // ["2026", "08", "22"]
+        const ngayFormat = ngayArray[2] + "/" + ngayArray[1] + "/" + ngayArray[0];
+
         const data = {
-            loaiXe: loaiXeHienTai + " (" + dongCo + ")", // VD: Xe máy (Xe Điện)
+            ngayThucHien: ngayFormat, // Truyền ngày format dd/MM/yyyy sang Script
+            loaiXe: loaiXeHienTai + " (" + dongCo + ")", 
             bienSo: document.getElementById('bienSo').value.trim().toUpperCase(),
             soKm: document.getElementById('soKm').value,
             hangMuc: document.getElementById('hangMuc').value,
             chiPhi: document.getElementById('chiPhi').value,
-            ghiChu: document.getElementById('ghiChu').value
+            ghiChu: document.getElementById('ghiChu').value,
+            tanSuat: document.querySelector('input[name="tanSuat"]:checked').value,
+            kmTrungBinh: document.getElementById('kmTrungBinh').value || 0
         };
 
-        // Hiển thị trạng thái đang tải
         btn.disabled = true;
         btn.innerText = 'Đang đồng bộ...';
         statusDiv.className = 'loading';
         statusDiv.innerText = 'Đang gửi dữ liệu...';
         statusDiv.style.display = 'block';
 
-        // Sử dụng mode: 'no-cors' để vượt qua lỗi CORS
         fetch(SCRIPT_URL, {
             method: 'POST',
             mode: 'no-cors',
-            headers: {
-                'Content-Type': 'text/plain;charset=utf-8',
-            },
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
             body: JSON.stringify(data)
         })
         .then(() => {
-            // Với no-cors, chúng ta không thể đọc response json
-            // Nhưng nếu chạy đến đây là đã gửi thành công
             statusDiv.className = 'success';
             statusDiv.innerText = '✅ Đã gửi lệnh lưu!';
-            
-            // Xóa các ô nhập liệu (giữ lại biển số cho tiện)
             document.getElementById('hangMuc').value = '';
             document.getElementById('chiPhi').value = '';
             document.getElementById('ghiChu').value = '';
@@ -173,7 +194,6 @@
         .catch(error => {
             statusDiv.className = 'error';
             statusDiv.innerText = '❌ Lỗi mạng: ' + error.message;
-            console.error(error);
         })
         .finally(() => {
             btn.disabled = false;
