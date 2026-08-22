@@ -1,0 +1,187 @@
+!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhật Ký Bảo Dưỡng - ODO</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #e9ecef; padding: 20px; color: #333; }
+        .container { max-width: 500px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
+        h2 { text-align: center; color: #2c3e50; margin-bottom: 25px; }
+        .form-group { margin-bottom: 18px; }
+        label { display: block; font-weight: 600; margin-bottom: 6px; color: #495057; }
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ced4da; border-radius: 6px; box-sizing: border-box; font-size: 15px; }
+        input:focus, select:focus, textarea:focus { border-color: #80bdff; outline: none; box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25); }
+        .radio-group { display: flex; gap: 20px; padding: 10px 0; }
+        .radio-group label { font-weight: normal; display: flex; align-items: center; cursor: pointer; }
+        .radio-group input { width: auto; margin-right: 8px; cursor: pointer; }
+        
+        button { width: 100%; padding: 14px; background-color: #007bff; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background-color 0.2s; }
+        button:hover { background-color: #0056b3; }
+        button:disabled { background-color: #6c757d; cursor: not-allowed; }
+        
+        #status { text-align: center; margin-top: 15px; font-weight: bold; padding: 10px; border-radius: 6px; display: none; }
+        .success { background-color: #d4edda; color: #155724; }
+        .error { background-color: #f8d7da; color: #721c24; }
+        .loading { background-color: #e2e3e5; color: #383d41; }
+        
+        /* Gợi ý hạng mục */
+        .suggestions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+        .tag { background: #e9ecef; padding: 5px 12px; border-radius: 15px; font-size: 13px; cursor: pointer; transition: background 0.2s; }
+        .tag:hover { background: #007bff; color: white; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Nhật Ký Bảo Dưỡng</h2>
+    <form id="maintenanceForm">
+        
+        <div class="form-group">
+            <label>Loại động cơ:</label>
+            <div class="radio-group">
+                <label><input type="radio" name="dongCo" value="Xe Xăng" checked onchange="updateTags()"> Xe Xăng</label>
+                <label><input type="radio" name="dongCo" value="Xe Điện" onchange="updateTags()"> Xe Điện (Pin LFP)</label>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Loại xe:</label>
+            <select id="loaiXe" required>
+                <option value="Xe máy">Xe máy</option>
+                <option value="Ô tô">Ô tô</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label>Biển số xe (Chính xác):</label>
+            <input type="text" id="bienSo" placeholder="VD: 60A-123.45" required style="text-transform: uppercase;">
+        </div>
+
+        <div class="form-group">
+            <label>Số Km ODO trên đồng hồ:</label>
+            <input type="number" id="soKm" placeholder="VD: 15500" required>
+        </div>
+
+        <div class="form-group">
+            <label>Hạng mục thực hiện:</label>
+            <input type="text" id="hangMuc" placeholder="Gõ hoặc chọn gợi ý bên dưới..." required>
+            <div class="suggestions" id="tagContainer">
+                <!-- Các nút tag sẽ được render bằng Javascript -->
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label>Tổng chi phí (VNĐ):</label>
+            <input type="number" id="chiPhi" placeholder="VD: 150000" required>
+        </div>
+
+        <div class="form-group">
+            <label>Ghi chú thêm:</label>
+            <textarea id="ghiChu" rows="2" placeholder="Ghi chú về thợ, xưởng hoặc phụ tùng..."></textarea>
+        </div>
+
+        <button type="submit" id="submitBtn">Lưu Báo Cáo</button>
+        <div id="status"></div>
+    </form>
+</div>
+
+<script>
+    // === THAY URL WEB APP CỦA BẠN VÀO ĐÂY ===
+    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyLd_3MpTHmZjqPdcLADnI53OOAaIezAKSXom8G7Ffonjc2oaRWcQFVVWEcykljoepaHw/exec';
+    // =========================================
+
+    const hangMucInput = document.getElementById('hangMuc');
+    const tagContainer = document.getElementById('tagContainer');
+
+    // Tags gợi ý dựa theo loại động cơ
+    const tagsXang = ["Thay nhớt máy", "Thay nhớt láp", "Vệ sinh nồi", "Thay lọc gió", "Bơm lốp", "Thay má phanh"];
+    const tagsDien = ["Thay dầu láp (hộp số)", "Kiểm tra pin LFP", "Bơm lốp", "Thay má phanh", "Kiểm tra phuộc"];
+
+    // Hàm cập nhật nút bấm gợi ý
+    function updateTags() {
+        tagContainer.innerHTML = ''; // Xóa cũ
+        const isDien = document.querySelector('input[name="dongCo"][value="Xe Điện"]').checked;
+        const currentTags = isDien ? tagsDien : tagsXang;
+
+        currentTags.forEach(tag => {
+            const span = document.createElement('span');
+            span.className = 'tag';
+            span.innerText = tag;
+            span.onclick = () => {
+                // Nếu input đã có chữ rồi thì không cộng dồn, thay thế luôn
+                if(hangMucInput.value && hangMucInput.value.length > 2) {
+                     hangMucInput.value = hangMucInput.value + ", " + tag;
+                } else {
+                     hangMucInput.value = tag;
+                }
+            };
+            tagContainer.appendChild(span);
+        });
+    }
+
+    // Chạy lần đầu để nạp tag cho xe xăng
+    updateTags();
+
+    // Xử lý gửi Form
+    document.getElementById('maintenanceForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const btn = document.getElementById('submitBtn');
+        const statusDiv = document.getElementById('status');
+        
+        // Lấy loại động cơ để nối vào loại xe cho rõ ràng
+        const dongCo = document.querySelector('input[name="dongCo"]:checked').value;
+        const loaiXeHienTai = document.getElementById('loaiXe').value;
+        
+        const data = {
+            loaiXe: loaiXeHienTai + " (" + dongCo + ")", // VD: Xe máy (Xe Điện)
+            bienSo: document.getElementById('bienSo').value.trim().toUpperCase(),
+            soKm: document.getElementById('soKm').value,
+            hangMuc: document.getElementById('hangMuc').value,
+            chiPhi: document.getElementById('chiPhi').value,
+            ghiChu: document.getElementById('ghiChu').value
+        };
+
+        // Hiển thị trạng thái đang tải
+        btn.disabled = true;
+        btn.innerText = 'Đang đồng bộ...';
+        statusDiv.className = 'loading';
+        statusDiv.innerText = 'Đang gửi dữ liệu...';
+        statusDiv.style.display = 'block';
+
+        // Sử dụng mode: 'no-cors' để vượt qua lỗi CORS
+        fetch(SCRIPT_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: {
+                'Content-Type': 'text/plain;charset=utf-8',
+            },
+            body: JSON.stringify(data)
+        })
+        .then(() => {
+            // Với no-cors, chúng ta không thể đọc response json
+            // Nhưng nếu chạy đến đây là đã gửi thành công
+            statusDiv.className = 'success';
+            statusDiv.innerText = '✅ Đã gửi lệnh lưu!';
+            
+            // Xóa các ô nhập liệu (giữ lại biển số cho tiện)
+            document.getElementById('hangMuc').value = '';
+            document.getElementById('chiPhi').value = '';
+            document.getElementById('ghiChu').value = '';
+        })
+        .catch(error => {
+            statusDiv.className = 'error';
+            statusDiv.innerText = '❌ Lỗi mạng: ' + error.message;
+            console.error(error);
+        })
+        .finally(() => {
+            btn.disabled = false;
+            btn.innerText = 'Lưu Báo Cáo';
+            setTimeout(() => { statusDiv.style.display = 'none'; }, 5000);
+        });
+    });
+</script>
+
+</body>
+</html>
