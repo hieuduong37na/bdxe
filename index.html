@@ -2,206 +2,400 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nhật Ký Bảo Dưỡng - ODO</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Garage Cá Nhân</title>
     <style>
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #e9ecef; padding: 20px; color: #333; }
-        .container { max-width: 500px; margin: 0 auto; background: #fff; padding: 25px; border-radius: 12px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        h2 { text-align: center; color: #2c3e50; margin-bottom: 25px; }
-        .form-group { margin-bottom: 18px; }
-        label { display: block; font-weight: 600; margin-bottom: 6px; color: #495057; }
-        input, select, textarea { width: 100%; padding: 12px; border: 1px solid #ced4da; border-radius: 6px; box-sizing: border-box; font-size: 15px; }
-        input:focus, select:focus, textarea:focus { border-color: #80bdff; outline: none; box-shadow: 0 0 0 0.2rem rgba(0,123,255,.25); }
-        .radio-group { display: flex; gap: 20px; padding: 10px 0; }
-        .radio-group label { font-weight: normal; display: flex; align-items: center; cursor: pointer; }
-        .radio-group input { width: auto; margin-right: 8px; cursor: pointer; }
+        :root { --primary: #007aff; --bg: #f2f2f7; --card: #ffffff; --text: #1c1c1e; --muted: #8e8e93; --border: #e5e5ea; }
+        * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+        body { background: var(--bg); margin: 0; padding: 0; color: var(--text); padding-bottom: 80px; }
         
-        button { width: 100%; padding: 14px; background-color: #007bff; color: white; border: none; border-radius: 6px; font-size: 16px; font-weight: bold; cursor: pointer; transition: background-color 0.2s; }
-        button:hover { background-color: #0056b3; }
-        button:disabled { background-color: #6c757d; cursor: not-allowed; }
+        header { background: var(--card); color: var(--text); padding: 16px; text-align: center; font-size: 18px; font-weight: 700; border-bottom: 1px solid var(--border); position: sticky; top: 0; z-index: 100; display: flex; justify-content: space-between; align-items: center;}
+        .refresh-btn { background: none; border: none; color: var(--primary); font-size: 14px; font-weight: 600; cursor: pointer; padding: 0;}
         
-        #status { text-align: center; margin-top: 15px; font-weight: bold; padding: 10px; border-radius: 6px; display: none; }
-        .success { background-color: #d4edda; color: #155724; }
-        .error { background-color: #f8d7da; color: #721c24; }
-        .loading { background-color: #e2e3e5; color: #383d41; }
+        .container { max-width: 500px; margin: 0 auto; padding: 16px; }
         
-        .suggestions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
-        .tag { background: #e9ecef; padding: 5px 12px; border-radius: 15px; font-size: 13px; cursor: pointer; transition: background 0.2s; }
-        .tag:hover { background: #007bff; color: white; }
-        .highlight-box { background: #f8f9fa; padding: 15px; border-radius: 6px; border: 1px dashed #ced4da; }
+        /* Nút FAB lơ lửng */
+        .fab { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 4px 12px rgba(0,122,255,0.4); border: none; cursor: pointer; z-index: 1000; transition: transform 0.2s; }
+        .fab:active { transform: scale(0.9); }
+
+        /* DANH SÁCH XE */
+        #vehicleList { display: flex; flex-direction: column; gap: 12px; }
+        .vehicle-card { background: var(--card); border-radius: 16px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); cursor: pointer; position: relative;}
+        .v-badge { position: absolute; top: 16px; right: 16px; width: 12px; height: 12px; border-radius: 50%; }
+        .v-badge.green { background-color: #34c759; box-shadow: 0 0 8px rgba(52,199,89,0.4);} 
+        .v-badge.orange { background-color: #ff9500; box-shadow: 0 0 8px rgba(255,149,0,0.4);} 
+        .v-badge.red { background-color: #ff3b30; box-shadow: 0 0 8px rgba(255,59,48,0.4); animation: pulse 1.5s infinite;}
+        @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255,59,48, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(255,59,48, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255,59,48, 0); } }
+        
+        .v-title { font-size: 17px; font-weight: 700; margin: 0 0 4px 0;}
+        .v-desc { font-size: 13px; color: var(--muted); margin: 0 0 12px 0;}
+        .v-details { font-size: 13px; line-height: 1.6; background: #f9f9f9; padding: 10px; border-radius: 10px;}
+        
+        details { margin-top: 10px; font-size: 13px; }
+        summary { font-weight: 600; color: var(--primary); cursor: pointer; outline: none; padding-top: 8px; border-top: 1px dashed var(--border);}
+        .history-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0; color: var(--muted);}
+        
+        /* FORM NHẬP LIỆU (TỐI GIẢN) */
+        #formScreen { display: none; }
+        .card-group { background: var(--card); border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+        .card-header { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+        
+        /* Thông báo Lịch sử gần nhất */
+        #lastMaintenanceInfo { display: none; background: #f4f6f8; border-left: 3px solid var(--primary); padding: 10px 12px; border-radius: 6px; font-size: 13px; margin-bottom: 12px; line-height: 1.5; color: #333; }
+        .last-main-title { font-weight: 600; margin-bottom: 2px; color: var(--primary); }
+
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .input-group { display: flex; flex-direction: column; margin-bottom: 12px; }
+        .input-group:last-child { margin-bottom: 0; }
+        .input-group label { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 6px; display: flex; justify-content: space-between;}
+        
+        input, select, textarea { width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 10px; font-size: 15px; background: #fafafa; outline: none; transition: 0.2s;}
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); background: #fff; }
+        select { font-weight: 600; color: var(--primary); background: #f0f8ff; border-color: transparent;}
+        
+        .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+        .tag { background: #f0f0f5; color: var(--text); padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; cursor: pointer;}
+        .tag:active { background: var(--primary); color: white; }
+        .tag.auto { background: #e3f2fd; color: #007aff; border: 1px solid #bbdefb;}
+
+        .btn-submit { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 14px; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(0,122,255,0.2); margin-top: 10px;}
+        .btn-submit:disabled { background: var(--muted); box-shadow: none; }
+        
+        .btn-back { width: 100%; padding: 14px; background: transparent; color: var(--muted); border: none; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 5px;}
+        
+        #status { text-align: center; margin-top: 15px; font-size: 14px; font-weight: 600; padding: 12px; border-radius: 10px; display: none;}
+        
+        /* Cụm nhập thủ công */
+        #thongTinThuCong { display: none; padding-top: 12px; border-top: 1px solid var(--border); margin-top: 12px;}
+        .radio-pills { display: flex; gap: 8px; }
+        .radio-pills label { flex: 1; background: #f0f0f5; padding: 10px; text-align: center; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;}
+        .radio-pills input { display: none; }
+        .radio-pills label:has(input:checked) { background: #007aff; color: white; }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h2>Nhật Ký Bảo Dưỡng</h2>
-    <form id="maintenanceForm">
+    <!-- GIAO DIỆN CHÍNH -->
+    <div id="mainScreen">
+        <header>
+            <div></div>
+            Garage Của Bạn
+            <button class="refresh-btn" onclick="loadVehicles()">Tải lại</button>
+        </header>
         
-        <div class="form-group">
-            <label>Loại động cơ:</label>
-            <div class="radio-group">
-                <label><input type="radio" name="dongCo" value="Xe Xăng" checked onchange="updateTags()"> Xe Xăng</label>
-                <label><input type="radio" name="dongCo" value="Xe Điện" onchange="updateTags()"> Xe Điện (Pin LFP)</label>
-            </div>
-        </div>
-
-        <div class="form-group">
-            <label>Loại xe:</label>
-            <select id="loaiXe" required>
-                <option value="Xe máy">Xe máy</option>
-                <option value="Ô tô">Ô tô</option>
-            </select>
+        <div class="container">
+            <div id="vehicleList"><div style="text-align:center; color:#8e8e93; margin-top:20px;">Đang đồng bộ dữ liệu...</div></div>
         </div>
         
-        <div class="form-group">
-            <label>Biển số xe (Chính xác):</label>
-            <input type="text" id="bienSo" placeholder="VD: 60A-123.45" required style="text-transform: uppercase;">
-        </div>
+        <button class="fab" onclick="openForm()">+</button>
+    </div>
 
-        <!-- MỚI THÊM: Ngày thực hiện -->
-        <div class="form-group">
-            <label>Ngày thực hiện:</label>
-            <input type="date" id="ngayThucHien" required>
-        </div>
+    <!-- GIAO DIỆN NHẬP LIỆU -->
+    <div id="formScreen">
+        <header style="justify-content: center;">Nhập Bảo Dưỡng</header>
+        
+        <div class="container" style="padding-top: 16px;">
+            <form id="maintenanceForm">
+                
+                <div class="card-group">
+                    <div class="card-header">1. Phương Tiện</div>
+                    <div class="input-group">
+                        <select id="chonDanhSachXe" onchange="xuLyChonXe()">
+                            <option value="">-- Chọn xe --</option>
+                        </select>
+                    </div>
 
-        <div class="form-group">
-            <label>Số Km ODO trên đồng hồ:</label>
-            <input type="number" id="soKm" placeholder="VD: 15500" required>
-        </div>
+                    <div id="thongTinThuCong">
+                        <div class="grid-2">
+                            <div class="input-group">
+                                <label>Loại xe:</label>
+                                <div class="radio-pills">
+                                    <label><input type="radio" name="loaiXe" value="Xe máy" checked onchange="updateTags()">Xe Máy</label>
+                                    <label><input type="radio" name="loaiXe" value="Ô tô" onchange="updateTags()">Ô tô</label>
+                                </div>
+                            </div>
+                            <div class="input-group">
+                                <label>Động cơ:</label>
+                                <div class="radio-pills">
+                                    <label><input type="radio" name="dongCo" value="Xăng" checked onchange="updateTags()">Xăng</label>
+                                    <label><input type="radio" name="dongCo" value="Điện" onchange="updateTags()">Điện</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid-2">
+                            <div class="input-group"><label>Model</label><input type="text" id="tenXe" placeholder="VD: Vinfast Feliz"></div>
+                            <div class="input-group"><label>Biển số</label><input type="text" id="bienSo" style="text-transform: uppercase;"></div>
+                        </div>
+                    </div>
+                </div>
 
-        <div class="form-group">
-            <label>Hạng mục thực hiện:</label>
-            <input type="text" id="hangMuc" placeholder="Gõ hoặc chọn gợi ý bên dưới..." required>
-            <div class="suggestions" id="tagContainer"></div>
-        </div>
+                <div class="card-group">
+                    <div class="card-header">2. Chi Tiết (Tự động ghi nhớ)</div>
+                    
+                    <!-- BẢNG THÔNG TIN LẦN GẦN NHẤT ĐƯỢC HIỂN THỊ TẠI ĐÂY -->
+                    <div id="lastMaintenanceInfo">
+                        <div class="last-main-title">Gần nhất (<span id="lastDate"></span>): <span id="lastOdo"></span> km</div>
+                        <div style="color: var(--muted);" id="lastItems"></div>
+                    </div>
 
-        <div class="form-group highlight-box">
-            <label style="color: #d9534f;">Thiết lập nhắc nhở tự động:</label>
-            <div class="radio-group">
-                <label><input type="radio" name="tanSuat" value="Ít" checked onchange="toggleKmInput()"> Xe đi ít (Nhắc sau 6 tháng)</label>
-                <label><input type="radio" name="tanSuat" value="Nhiều" onchange="toggleKmInput()"> Xe đi nhiều (Nhắc theo ODO)</label>
-            </div>
+                    <div class="grid-2">
+                        <div class="input-group"><label>Ngày</label><input type="date" id="ngayThucHien" required></div>
+                        <div class="input-group"><label>ODO hiện tại</label><input type="number" id="soKm" required></div>
+                    </div>
+                    <div class="input-group">
+                        <label>Hạng mục thực hiện</label>
+                        <input type="text" id="hangMuc" placeholder="VD: Thay nhớt, Thay lốp..." required oninput="tuDongDienCaiDat()">
+                        <div class="tags" id="tagContainer"></div>
+                    </div>
+                </div>
+
+                <div class="card-group">
+                    <div class="card-header">3. Hẹn Giờ Nhắc Nhở (Bỏ trống = Tắt)</div>
+                    <div class="input-group">
+                        <label>Nhắc theo ODO (Km)</label>
+                        <div class="radio-pills" style="margin-bottom: 8px;">
+                            <label><input type="radio" name="loaiTinhKm" value="cong" checked onchange="toggleLoaiTinhKm()">➕ Cộng thêm</label>
+                            <label><input type="radio" name="loaiTinhKm" value="odo" onchange="toggleLoaiTinhKm()">🎯 ODO đích</label>
+                        </div>
+                        <div class="grid-2">
+                            <div id="divCongKm"><input type="number" id="valCongKm" placeholder="+Km (VD: 2000)"></div>
+                            <div id="divOdoDich" style="display:none;"><input type="number" id="valOdoDich" placeholder="Mốc Km (VD: 15500)"></div>
+                            <div><input type="number" id="kmTrungBinh" placeholder="Km đi 1 ngày (VD: 30)"></div>
+                        </div>
+                    </div>
+                    <div class="input-group" style="margin-top: 12px;"><label>Hoặc nhắc sau (Tháng)</label><input type="number" id="valThang" placeholder="VD: 6"></div>
+                </div>
+
+                <div class="card-group">
+                    <div class="card-header">4. Bổ Sung</div>
+                    <div class="grid-2">
+                        <div class="input-group"><label>Chi phí (VNĐ)</label><input type="number" id="chiPhi" placeholder="VD: 150000"></div>
+                        <div class="input-group"><label>Ghi chú</label><input type="text" id="ghiChu" placeholder="Tùy chọn"></div>
+                    </div>
+                </div>
+
+                <button type="submit" id="submitBtn" class="btn-submit">Hoàn Tất</button>
+                <button type="button" class="btn-back" onclick="closeForm()">Hủy & Quay lại</button>
+                <div id="status"></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // === 1. GẮN URL WEB APP CỦA BẠN VÀO ĐÂY ===
+        const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyLd_3MpTHmZjqPdcLADnI53OOAaIezAKSXom8G7Ffonjc2oaRWcQFVVWEcykljoepaHw/exec';
+        
+        // === 2. DANH SÁCH XE CỦA BẠN ===
+        const DANH_SACH_XE = [
+            { ten: "VinFast Feliz 2025", loaiXe: "Xe máy", dongCo: "Điện", bienSo: "60AC-538.29" },
+            { ten: "Honda Air Blade", loaiXe: "Xe máy", dongCo: "Xăng", bienSo: "37AC-593.01" },
+            { ten: "Mazda 3", loaiXe: "Ô tô", dongCo: "Xăng", bienSo: "60A-123.45" }
+        ];
+
+        let serverData = []; let aiSettings = {}; let aiTags = [];
+
+        document.getElementById('ngayThucHien').valueAsDate = new Date();
+        khoiTaoDanhSachXe(); window.onload = loadVehicles;
+
+        function khoiTaoDanhSachXe() {
+            const select = document.getElementById('chonDanhSachXe');
+            DANH_SACH_XE.forEach((xe, i) => { select.add(new Option(`${xe.ten} [${xe.bienSo}]`, i)); });
+            select.add(new Option("+ Thêm xe mới...", "manual"));
+        }
+
+        // XỬ LÝ CHỌN XE & HIỂN THỊ LỊCH SỬ GẦN NHẤT
+        function xuLyChonXe() {
+            const val = document.getElementById('chonDanhSachXe').value;
+            const m = document.getElementById('thongTinThuCong');
+            const lastInfoBox = document.getElementById('lastMaintenanceInfo');
             
-            <div id="kmTrungBinhDiv" style="display: none; margin-top: 15px;">
-                <label>Số Km đi trung bình 1 ngày (Ước tính):</label>
-                <input type="number" id="kmTrungBinh" placeholder="VD: 30 (Mỗi ngày đi làm 30km)">
-            </div>
-        </div>
+            document.getElementById('hangMuc').value = ""; 
+            resetNhacNho();
 
-        <div class="form-group">
-            <label>Tổng chi phí (VNĐ):</label>
-            <input type="number" id="chiPhi" placeholder="VD: 150000" required>
-        </div>
+            if (val === "" || val === "manual") {
+                m.style.display = 'block'; document.getElementById('bienSo').value = '';
+                lastInfoBox.style.display = 'none';
+                document.getElementById('soKm').value = '';
+            } else {
+                m.style.display = 'none';
+                const xe = DANH_SACH_XE[val];
+                document.getElementById('bienSo').value = xe.bienSo;
+                document.getElementById('tenXe').value = xe.ten;
+                document.querySelector(`input[name="loaiXe"][value="${xe.loaiXe}"]`).checked = true;
+                document.querySelector(`input[name="dongCo"][value="${xe.dongCo}"]`).checked = true;
+                
+                const found = serverData.find(s => s.bienSo === xe.bienSo);
+                
+                // Thuật toán lấy và gom nhóm lịch sử gần nhất cùng ngày
+                if(found && found.lichSu && found.lichSu.length > 0) {
+                    const lastDateStr = found.lichSu[0].ngay;
+                    const lastOdoVal = found.lichSu[0].odo;
+                    
+                    // Lọc lấy TẤT CẢ hạng mục được làm trong cái ngày gần nhất đó
+                    const recentItems = found.lichSu
+                                        .filter(h => h.ngay === lastDateStr)
+                                        .map(h => h.hangMuc)
+                                        .join(", ");
 
-        <div class="form-group">
-            <label>Ghi chú thêm:</label>
-            <textarea id="ghiChu" rows="2" placeholder="Ghi chú về thợ, xưởng hoặc phụ tùng..."></textarea>
-        </div>
-
-        <button type="submit" id="submitBtn">Lưu Báo Cáo</button>
-        <div id="status"></div>
-    </form>
-</div>
-
-<script>
-    // === ĐIỀN URL WEB APP CỦA BẠN VÀO ĐÂY ===
-    const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyLd_3MpTHmZjqPdcLADnI53OOAaIezAKSXom8G7Ffonjc2oaRWcQFVVWEcykljoepaHw/exec';
-    // =======================================
-
-    // Tự động set Ngày thực hiện là hôm nay
-    document.getElementById('ngayThucHien').valueAsDate = new Date();
-
-    const hangMucInput = document.getElementById('hangMuc');
-    const tagContainer = document.getElementById('tagContainer');
-
-    const tagsXang = ["Thay nhớt máy", "Thay nhớt láp", "Vệ sinh nồi", "Thay lọc gió", "Bơm lốp", "Thay phanh"];
-    const tagsDien = ["Thay dầu láp (hộp số)", "Kiểm tra pin LFP", "Bơm lốp", "Thay phanh", "Kiểm tra phuộc"];
-
-    function updateTags() {
-        tagContainer.innerHTML = ''; 
-        const isDien = document.querySelector('input[name="dongCo"][value="Xe Điện"]').checked;
-        const currentTags = isDien ? tagsDien : tagsXang;
-
-        currentTags.forEach(tag => {
-            const span = document.createElement('span');
-            span.className = 'tag';
-            span.innerText = tag;
-            span.onclick = () => {
-                if(hangMucInput.value && hangMucInput.value.length > 2) {
-                     hangMucInput.value = hangMucInput.value + ", " + tag;
+                    document.getElementById('lastDate').innerText = lastDateStr;
+                    document.getElementById('lastOdo').innerText = lastOdoVal;
+                    document.getElementById('lastItems').innerText = "Đã làm: " + recentItems;
+                    
+                    lastInfoBox.style.display = 'block';
+                    document.getElementById('soKm').value = lastOdoVal; // Tự điền ODO cũ để người dùng dễ cộng thêm
                 } else {
-                     hangMucInput.value = tag;
+                    lastInfoBox.style.display = 'none';
+                    document.getElementById('soKm').value = '';
                 }
+                
+                updateTags();
+            }
+        }
+
+        // CHUYỂN ĐỔI LOẠI TÍNH KM
+        function toggleLoaiTinhKm() {
+            const val = document.querySelector('input[name="loaiTinhKm"]:checked').value;
+            document.getElementById('divCongKm').style.display = (val === 'cong') ? 'block' : 'none';
+            document.getElementById('divOdoDich').style.display = (val === 'odo') ? 'block' : 'none';
+        }
+
+        // AI TỰ ĐIỀN
+        function tuDongDienCaiDat() {
+            let bs = document.getElementById('bienSo').value.trim().toUpperCase();
+            let hm = document.getElementById('hangMuc').value.trim().toLowerCase();
+            let key = bs + "_" + hm;
+            
+            if (aiSettings[key]) {
+                let s = aiSettings[key];
+                document.querySelector('input[name="loaiTinhKm"][value="cong"]').checked = true;
+                toggleLoaiTinhKm();
+
+                document.getElementById('valCongKm').value = s.dKm > 0 ? s.dKm : '';
+                document.getElementById('kmTrungBinh').value = s.kNgay > 0 ? s.kNgay : '';
+                document.getElementById('valThang').value = s.dThang > 0 ? s.dThang : '';
+            } else { resetNhacNho(); }
+        }
+
+        function resetNhacNho() {
+            document.getElementById('valCongKm').value = ''; 
+            document.getElementById('valOdoDich').value = ''; 
+            document.getElementById('kmTrungBinh').value = ''; 
+            document.getElementById('valThang').value = '';
+        }
+
+        function updateTags() {
+            const lXe = document.querySelector('input[name="loaiXe"]:checked').value;
+            const dCo = document.querySelector('input[name="dongCo"]:checked').value;
+            
+            let tags = (lXe === "Ô tô") ? 
+                (dCo === "Xăng" ? ["Thay dầu động cơ", "Lọc nhớt", "Lọc gió", "Đảo lốp", "Má phanh"] : ["Kiểm tra Pin", "Nước làm mát", "Dầu hộp số", "Má phanh"]) :
+                (dCo === "Xăng" ? ["Thay nhớt máy", "Nhớt láp", "Vệ sinh nồi", "Bơm lốp"] : ["Dầu láp (hộp số)", "Kiểm tra pin LFP", "Phanh", "Phuộc"]);
+            
+            let uniqueAiTags = aiTags.filter(item => !tags.includes(item));
+            const tc = document.getElementById('tagContainer'); tc.innerHTML = '';
+            
+            uniqueAiTags.forEach(t => { addTag(t, 'tag auto', '★ '); });
+            tags.forEach(t => { addTag(t, 'tag', ''); });
+        }
+        
+        function addTag(text, className, prefix) {
+            let s = document.createElement('span'); s.className = className; s.innerText = prefix + text;
+            s.onclick = () => { document.getElementById('hangMuc').value = text; tuDongDienCaiDat(); };
+            document.getElementById('tagContainer').appendChild(s);
+        }
+
+        // TẢI DỮ LIỆU
+        function loadVehicles() {
+            const list = document.getElementById('vehicleList');
+            list.innerHTML = '<div style="text-align:center; color:#8e8e93; margin-top:20px;">Đang đồng bộ dữ liệu...</div>';
+            
+            fetch(SCRIPT_URL).then(res => res.json()).then(data => {
+                if(data.result === 'success') {
+                    serverData = data.data; aiSettings = data.aiSettings; aiTags = data.aiTags;
+                    if(data.data.length === 0) { list.innerHTML = '<div style="text-align:center; color:#8e8e93; margin-top:20px;">Trống. Bấm dấu + để thêm phiếu!</div>'; return; }
+                    list.innerHTML = '';
+                    
+                    data.data.forEach(xe => {
+                        let historyHTML = '';
+                        if(xe.lichSu && xe.lichSu.length > 0) {
+                            historyHTML = '<details><summary>Lịch sử bảo dưỡng ('+xe.lichSu.length+')</summary>';
+                            xe.lichSu.slice(0, 5).forEach(h => { historyHTML += `<div class="history-item"><span>${h.ngay} - ${h.odo}km</span><span>${h.hangMuc}</span></div>`; });
+                            historyHTML += '</details>';
+                        }
+                        
+                        let card = document.createElement('div'); card.className = 'vehicle-card';
+                        card.innerHTML = `
+                            <div class="v-badge ${xe.colorTrangThai}"></div>
+                            <h3 class="v-title" onclick="tuDongChonXeTuCard('${xe.bienSo}')">${xe.bienSo}</h3>
+                            <p class="v-desc">${xe.phuongTien}</p>
+                            <div class="v-details">
+                                <div style="margin-bottom:8px; border-bottom:1px solid #e5e5ea; padding-bottom:5px;"><strong>Đang theo dõi:</strong><br>${xe.chiTietTheoDoi}</div>
+                                ${historyHTML}
+                            </div>
+                        `;
+                        list.appendChild(card);
+                    });
+                } else { list.innerHTML = '<div style="text-align:center; color:#ff3b30;">Lỗi tải dữ liệu.</div>'; }
+            }).catch(err => { list.innerHTML = '<div style="text-align:center; color:#ff3b30;">Mất kết nối mạng.</div>'; });
+        }
+
+        function tuDongChonXeTuCard(bs) {
+            let idx = DANH_SACH_XE.findIndex(x => x.bienSo === bs);
+            document.getElementById('chonDanhSachXe').value = idx !== -1 ? idx : "manual";
+            document.getElementById('bienSo').value = bs;
+            xuLyChonXe(); openForm();
+        }
+
+        function openForm() { document.getElementById('mainScreen').style.display = 'none'; document.getElementById('formScreen').style.display = 'block'; window.scrollTo(0, 0); updateTags();}
+        function closeForm() { document.getElementById('formScreen').style.display = 'none'; document.getElementById('mainScreen').style.display = 'block'; }
+
+        // LƯU FORM
+        document.getElementById('maintenanceForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            if(document.getElementById('chonDanhSachXe').value === "") { alert("Vui lòng chọn xe!"); return; }
+
+            const btn = document.getElementById('submitBtn'); const statusDiv = document.getElementById('status');
+            const ngayArray = document.getElementById('ngayThucHien').value.split('-'); 
+            
+            const soKmHienTai = parseFloat(document.getElementById('soKm').value) || 0;
+            let deltaKm = 0;
+            
+            const loaiTinh = document.querySelector('input[name="loaiTinhKm"]:checked').value;
+            if (loaiTinh === 'cong') {
+                deltaKm = parseFloat(document.getElementById('valCongKm').value) || 0;
+            } else {
+                let odoDich = parseFloat(document.getElementById('valOdoDich').value) || 0;
+                deltaKm = Math.max(0, odoDich - soKmHienTai); 
+            }
+
+            let pText = document.getElementById('tenXe').value || (document.querySelector('input[name="loaiXe"]:checked').value + " (" + document.querySelector('input[name="dongCo"]:checked').value + ")");
+
+            const data = {
+                ngayThucHien: ngayArray[2] + "/" + ngayArray[1] + "/" + ngayArray[0], 
+                phuongTienText: pText, namSuDung: "", bienSo: document.getElementById('bienSo').value.trim().toUpperCase(),
+                soKm: soKmHienTai, 
+                hangMuc: document.getElementById('hangMuc').value.trim(),
+                chiPhi: document.getElementById('chiPhi').value || 0, 
+                ghiChu: document.getElementById('ghiChu').value,
+                dinhMucKm: deltaKm, 
+                kmTrungBinh: (deltaKm > 0) ? (parseFloat(document.getElementById('kmTrungBinh').value) || 0) : 0, 
+                dinhMucThang: parseFloat(document.getElementById('valThang').value) || 0,
             };
-            tagContainer.appendChild(span);
+
+            btn.disabled = true; btn.innerHTML = 'Đang lưu...';
+            statusDiv.style.background = '#e2e3e5'; statusDiv.style.color = '#383d41'; statusDiv.innerText = 'Đang đẩy lên Google Sheets...'; statusDiv.style.display = 'block';
+
+            fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(data) })
+            .then(() => {
+                statusDiv.style.background = '#d4edda'; statusDiv.style.color = '#155724'; statusDiv.innerText = 'Lưu thành công!';
+                document.getElementById('chonDanhSachXe').value = ""; xuLyChonXe();
+                document.getElementById('chiPhi').value = ''; document.getElementById('ghiChu').value = '';
+                
+                setTimeout(() => { statusDiv.style.display = 'none'; closeForm(); loadVehicles(); }, 1500);
+            }).catch(err => { 
+                statusDiv.style.background = '#f8d7da'; statusDiv.style.color = '#721c24'; statusDiv.innerText = 'Lỗi mạng!'; 
+            }).finally(() => { btn.disabled = false; btn.innerHTML = 'Hoàn Tất'; });
         });
-    }
-
-    function toggleKmInput() {
-        const val = document.querySelector('input[name="tanSuat"]:checked').value;
-        const div = document.getElementById('kmTrungBinhDiv');
-        div.style.display = (val === 'Nhiều') ? 'block' : 'none';
-        if (val === 'Ít') document.getElementById('kmTrungBinh').value = '';
-    }
-
-    updateTags();
-
-    document.getElementById('maintenanceForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        
-        const btn = document.getElementById('submitBtn');
-        const statusDiv = document.getElementById('status');
-        
-        const dongCo = document.querySelector('input[name="dongCo"]:checked').value;
-        const loaiXeHienTai = document.getElementById('loaiXe').value;
-        
-        // Lấy ngày, chuyển format yyyy-mm-dd sang dd/MM/yyyy để App Script dễ nhận
-        const ngayGoc = document.getElementById('ngayThucHien').value;
-        const ngayArray = ngayGoc.split('-'); // ["2026", "08", "22"]
-        const ngayFormat = ngayArray[2] + "/" + ngayArray[1] + "/" + ngayArray[0];
-
-        const data = {
-            ngayThucHien: ngayFormat, // Truyền ngày format dd/MM/yyyy sang Script
-            loaiXe: loaiXeHienTai + " (" + dongCo + ")", 
-            bienSo: document.getElementById('bienSo').value.trim().toUpperCase(),
-            soKm: document.getElementById('soKm').value,
-            hangMuc: document.getElementById('hangMuc').value,
-            chiPhi: document.getElementById('chiPhi').value,
-            ghiChu: document.getElementById('ghiChu').value,
-            tanSuat: document.querySelector('input[name="tanSuat"]:checked').value,
-            kmTrungBinh: document.getElementById('kmTrungBinh').value || 0
-        };
-
-        btn.disabled = true;
-        btn.innerText = 'Đang đồng bộ...';
-        statusDiv.className = 'loading';
-        statusDiv.innerText = 'Đang gửi dữ liệu...';
-        statusDiv.style.display = 'block';
-
-        fetch(SCRIPT_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-            body: JSON.stringify(data)
-        })
-        .then(() => {
-            statusDiv.className = 'success';
-            statusDiv.innerText = '✅ Đã gửi lệnh lưu!';
-            document.getElementById('hangMuc').value = '';
-            document.getElementById('chiPhi').value = '';
-            document.getElementById('ghiChu').value = '';
-        })
-        .catch(error => {
-            statusDiv.className = 'error';
-            statusDiv.innerText = '❌ Lỗi mạng: ' + error.message;
-        })
-        .finally(() => {
-            btn.disabled = false;
-            btn.innerText = 'Lưu Báo Cáo';
-            setTimeout(() => { statusDiv.style.display = 'none'; }, 5000);
-        });
-    });
-</script>
-
+    </script>
 </body>
 </html>
