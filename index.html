@@ -13,37 +13,36 @@
         .refresh-btn { background: none; border: none; color: var(--primary); font-size: 14px; font-weight: 600; cursor: pointer; padding: 0;}
         
         .container { max-width: 500px; margin: 0 auto; padding: 16px; }
-        
-        /* Nút FAB lơ lửng */
         .fab { position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; background: var(--primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 4px 12px rgba(0,122,255,0.4); border: none; cursor: pointer; z-index: 1000; transition: transform 0.2s; }
         .fab:active { transform: scale(0.9); }
 
-        /* DANH SÁCH XE */
         #vehicleList { display: flex; flex-direction: column; gap: 12px; }
-        .vehicle-card { background: var(--card); border-radius: 16px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); cursor: pointer; position: relative;}
+        .vehicle-card { background: var(--card); border-radius: 16px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.04); position: relative;}
         .v-badge { position: absolute; top: 16px; right: 16px; width: 12px; height: 12px; border-radius: 50%; }
         .v-badge.green { background-color: #34c759; box-shadow: 0 0 8px rgba(52,199,89,0.4);} 
         .v-badge.orange { background-color: #ff9500; box-shadow: 0 0 8px rgba(255,149,0,0.4);} 
         .v-badge.red { background-color: #ff3b30; box-shadow: 0 0 8px rgba(255,59,48,0.4); animation: pulse 1.5s infinite;}
         @keyframes pulse { 0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255,59,48, 0.7); } 70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(255,59,48, 0); } 100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(255,59,48, 0); } }
         
-        .v-title { font-size: 17px; font-weight: 700; margin: 0 0 4px 0;}
+        .v-title { font-size: 17px; font-weight: 700; margin: 0 0 4px 0; cursor: pointer; color: var(--primary);}
         .v-desc { font-size: 13px; color: var(--muted); margin: 0 0 12px 0;}
         .v-details { font-size: 13px; line-height: 1.6; background: #f9f9f9; padding: 10px; border-radius: 10px;}
         
         details { margin-top: 10px; font-size: 13px; }
         summary { font-weight: 600; color: var(--primary); cursor: pointer; outline: none; padding-top: 8px; border-top: 1px dashed var(--border);}
-        .history-item { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #f0f0f0; color: var(--muted);}
         
-        /* FORM NHẬP LIỆU (TỐI GIẢN) */
+        /* Hiệu ứng lịch sử gần nhất - Nhấn đúp để sửa */
+        .history-item { padding: 10px 8px; border-bottom: 1px solid #f0f0f0; color: var(--muted); transition: 0.2s;}
+        .history-item.latest { background: #eef2fa; border-radius: 6px; cursor: pointer; color: #1c1c1e; position: relative;}
+        .history-item.latest:active { background: #dde5f5; }
+        .edit-hint { display: block; font-size: 11px; color: var(--primary); font-weight: bold; margin-top: 4px; }
+        
         #formScreen { display: none; }
         .card-group { background: var(--card); border-radius: 16px; padding: 16px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
-        .card-header { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; }
+        .card-header { font-size: 12px; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 12px; display: flex; justify-content: space-between;}
         
-        /* Thông báo Lịch sử gần nhất */
-        #lastMaintenanceInfo { display: none; background: #f4f6f8; border-left: 3px solid var(--primary); padding: 10px 12px; border-radius: 6px; font-size: 13px; margin-bottom: 12px; line-height: 1.5; color: #333; }
-        .last-main-title { font-weight: 600; margin-bottom: 2px; color: var(--primary); }
-
+        #editModeBanner { display: none; background: #ffcc00; color: #1c1c1e; padding: 10px; border-radius: 10px; font-size: 13px; font-weight: bold; text-align: center; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .input-group { display: flex; flex-direction: column; margin-bottom: 12px; }
         .input-group:last-child { margin-bottom: 0; }
@@ -60,12 +59,10 @@
 
         .btn-submit { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 14px; font-size: 16px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(0,122,255,0.2); margin-top: 10px;}
         .btn-submit:disabled { background: var(--muted); box-shadow: none; }
-        
         .btn-back { width: 100%; padding: 14px; background: transparent; color: var(--muted); border: none; font-size: 15px; font-weight: 600; cursor: pointer; margin-top: 5px;}
         
         #status { text-align: center; margin-top: 15px; font-size: 14px; font-weight: 600; padding: 12px; border-radius: 10px; display: none;}
         
-        /* Cụm nhập thủ công */
         #thongTinThuCong { display: none; padding-top: 12px; border-top: 1px solid var(--border); margin-top: 12px;}
         .radio-pills { display: flex; gap: 8px; }
         .radio-pills label { flex: 1; background: #f0f0f5; padding: 10px; text-align: center; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer;}
@@ -75,31 +72,28 @@
 </head>
 <body>
 
-    <!-- GIAO DIỆN CHÍNH -->
     <div id="mainScreen">
         <header>
-            <div></div>
-            Garage Của Bạn
-            <button class="refresh-btn" onclick="loadVehicles()">Tải lại</button>
+            <div></div> Garage Của Bạn <button class="refresh-btn" onclick="loadVehicles()">Tải lại</button>
         </header>
-        
         <div class="container">
             <div id="vehicleList"><div style="text-align:center; color:#8e8e93; margin-top:20px;">Đang đồng bộ dữ liệu...</div></div>
         </div>
-        
         <button class="fab" onclick="openForm()">+</button>
     </div>
 
-    <!-- GIAO DIỆN NHẬP LIỆU -->
     <div id="formScreen">
-        <header style="justify-content: center;">Nhập Bảo Dưỡng</header>
+        <header style="justify-content: center;" id="formTitle">Nhập Bảo Dưỡng</header>
         
         <div class="container" style="padding-top: 16px;">
+            
+            <div id="editModeBanner">⚠️ BẠN ĐANG SỬA PHIẾU CŨ (Còn <span id="editCountNum"></span> lần sửa)</div>
+
             <form id="maintenanceForm">
                 
                 <div class="card-group">
                     <div class="card-header">1. Phương Tiện</div>
-                    <div class="input-group">
+                    <div class="input-group" id="groupChonXe">
                         <select id="chonDanhSachXe" onchange="xuLyChonXe()">
                             <option value="">-- Chọn xe --</option>
                         </select>
@@ -123,7 +117,7 @@
                             </div>
                         </div>
                         <div class="grid-2">
-                            <div class="input-group"><label>Model</label><input type="text" id="tenXe" placeholder="VD: Vinfast Feliz"></div>
+                            <div class="input-group"><label>Tên xe</label><input type="text" id="tenXe" placeholder="VD: Vinfast Feliz"></div>
                             <div class="input-group"><label>Biển số</label><input type="text" id="bienSo" style="text-transform: uppercase;"></div>
                         </div>
                     </div>
@@ -131,20 +125,13 @@
 
                 <div class="card-group">
                     <div class="card-header">2. Chi Tiết (Tự động ghi nhớ)</div>
-                    
-                    <!-- BẢNG THÔNG TIN LẦN GẦN NHẤT ĐƯỢC HIỂN THỊ TẠI ĐÂY -->
-                    <div id="lastMaintenanceInfo">
-                        <div class="last-main-title">Gần nhất (<span id="lastDate"></span>): <span id="lastOdo"></span> km</div>
-                        <div style="color: var(--muted);" id="lastItems"></div>
-                    </div>
-
                     <div class="grid-2">
                         <div class="input-group"><label>Ngày</label><input type="date" id="ngayThucHien" required></div>
                         <div class="input-group"><label>ODO hiện tại</label><input type="number" id="soKm" required></div>
                     </div>
                     <div class="input-group">
                         <label>Hạng mục thực hiện</label>
-                        <input type="text" id="hangMuc" placeholder="VD: Thay nhớt, Thay lốp..." required oninput="tuDongDienCaiDat()">
+                        <input type="text" id="hangMuc" placeholder="VD: Thay nhớt..." required oninput="tuDongDienCaiDat()">
                         <div class="tags" id="tagContainer"></div>
                     </div>
                 </div>
@@ -182,83 +169,58 @@
     </div>
 
     <script>
-        // === 1. GẮN URL WEB APP CỦA BẠN VÀO ĐÂY ===
+        // === GẮN URL WEB APP CỦA BẠN VÀO ĐÂY ===
         const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyLd_3MpTHmZjqPdcLADnI53OOAaIezAKSXom8G7Ffonjc2oaRWcQFVVWEcykljoepaHw/exec';
         
-        // === 2. DANH SÁCH XE CỦA BẠN ===
-        const DANH_SACH_XE = [
-            { ten: "VinFast Feliz 2025", loaiXe: "Xe máy", dongCo: "Điện", bienSo: "60AC-538.29" },
-        ];
-
-        let serverData = []; let aiSettings = {}; let aiTags = [];
+        let serverData = []; let aiSettings = {}; let aiTags = []; let DANH_SACH_XE_TU_DONG = [];
+        
+        // Biến phục vụ tính năng Sửa (Edit)
+        let isEditMode = false;
+        let currentRowId = null;
 
         document.getElementById('ngayThucHien').valueAsDate = new Date();
-        khoiTaoDanhSachXe(); window.onload = loadVehicles;
+        window.onload = loadVehicles;
 
         function khoiTaoDanhSachXe() {
             const select = document.getElementById('chonDanhSachXe');
-            DANH_SACH_XE.forEach((xe, i) => { select.add(new Option(`${xe.ten} [${xe.bienSo}]`, i)); });
+            select.innerHTML = '<option value="">-- Chọn xe --</option>'; 
+            DANH_SACH_XE_TU_DONG.forEach((xe, i) => { select.add(new Option(`🏍 ${xe.ten} [${xe.bienSo}]`, i)); });
             select.add(new Option("+ Thêm xe mới...", "manual"));
         }
 
-        // XỬ LÝ CHỌN XE & HIỂN THỊ LỊCH SỬ GẦN NHẤT
         function xuLyChonXe() {
             const val = document.getElementById('chonDanhSachXe').value;
             const m = document.getElementById('thongTinThuCong');
-            const lastInfoBox = document.getElementById('lastMaintenanceInfo');
             
-            document.getElementById('hangMuc').value = ""; 
-            resetNhacNho();
+            if (!isEditMode) { document.getElementById('hangMuc').value = ""; resetNhacNho(); document.getElementById('soKm').value = '';}
 
             if (val === "" || val === "manual") {
                 m.style.display = 'block'; document.getElementById('bienSo').value = '';
-                lastInfoBox.style.display = 'none';
-                document.getElementById('soKm').value = '';
             } else {
                 m.style.display = 'none';
-                const xe = DANH_SACH_XE[val];
+                const xe = DANH_SACH_XE_TU_DONG[val];
                 document.getElementById('bienSo').value = xe.bienSo;
                 document.getElementById('tenXe').value = xe.ten;
-                document.querySelector(`input[name="loaiXe"][value="${xe.loaiXe}"]`).checked = true;
-                document.querySelector(`input[name="dongCo"][value="${xe.dongCo}"]`).checked = true;
+                
+                if(xe.loaiXe) document.querySelector(`input[name="loaiXe"][value="${xe.loaiXe}"]`).checked = true;
+                if(xe.dongCo) document.querySelector(`input[name="dongCo"][value="${xe.dongCo}"]`).checked = true;
                 
                 const found = serverData.find(s => s.bienSo === xe.bienSo);
-                
-                // Thuật toán lấy và gom nhóm lịch sử gần nhất cùng ngày
-                if(found && found.lichSu && found.lichSu.length > 0) {
-                    const lastDateStr = found.lichSu[0].ngay;
-                    const lastOdoVal = found.lichSu[0].odo;
-                    
-                    // Lọc lấy TẤT CẢ hạng mục được làm trong cái ngày gần nhất đó
-                    const recentItems = found.lichSu
-                                        .filter(h => h.ngay === lastDateStr)
-                                        .map(h => h.hangMuc)
-                                        .join(", ");
-
-                    document.getElementById('lastDate').innerText = lastDateStr;
-                    document.getElementById('lastOdo').innerText = lastOdoVal;
-                    document.getElementById('lastItems').innerText = "Đã làm: " + recentItems;
-                    
-                    lastInfoBox.style.display = 'block';
-                    document.getElementById('soKm').value = lastOdoVal; // Tự điền ODO cũ để người dùng dễ cộng thêm
-                } else {
-                    lastInfoBox.style.display = 'none';
-                    document.getElementById('soKm').value = '';
+                if(!isEditMode && found && found.lichSuFull && found.lichSuFull.length > 0) {
+                    document.getElementById('soKm').value = found.lichSuFull[0].odo; 
                 }
-                
                 updateTags();
             }
         }
 
-        // CHUYỂN ĐỔI LOẠI TÍNH KM
         function toggleLoaiTinhKm() {
             const val = document.querySelector('input[name="loaiTinhKm"]:checked').value;
             document.getElementById('divCongKm').style.display = (val === 'cong') ? 'block' : 'none';
             document.getElementById('divOdoDich').style.display = (val === 'odo') ? 'block' : 'none';
         }
 
-        // AI TỰ ĐIỀN
         function tuDongDienCaiDat() {
+            if(isEditMode) return; // Nếu đang trong chế độ sửa thì không cho AI can thiệp ghi đè
             let bs = document.getElementById('bienSo').value.trim().toUpperCase();
             let hm = document.getElementById('hangMuc').value.trim().toLowerCase();
             let key = bs + "_" + hm;
@@ -267,7 +229,6 @@
                 let s = aiSettings[key];
                 document.querySelector('input[name="loaiTinhKm"][value="cong"]').checked = true;
                 toggleLoaiTinhKm();
-
                 document.getElementById('valCongKm').value = s.dKm > 0 ? s.dKm : '';
                 document.getElementById('kmTrungBinh').value = s.kNgay > 0 ? s.kNgay : '';
                 document.getElementById('valThang').value = s.dThang > 0 ? s.dThang : '';
@@ -275,16 +236,13 @@
         }
 
         function resetNhacNho() {
-            document.getElementById('valCongKm').value = ''; 
-            document.getElementById('valOdoDich').value = ''; 
-            document.getElementById('kmTrungBinh').value = ''; 
-            document.getElementById('valThang').value = '';
+            document.getElementById('valCongKm').value = ''; document.getElementById('valOdoDich').value = ''; 
+            document.getElementById('kmTrungBinh').value = ''; document.getElementById('valThang').value = '';
         }
 
         function updateTags() {
             const lXe = document.querySelector('input[name="loaiXe"]:checked').value;
             const dCo = document.querySelector('input[name="dongCo"]:checked').value;
-            
             let tags = (lXe === "Ô tô") ? 
                 (dCo === "Xăng" ? ["Thay dầu động cơ", "Lọc nhớt", "Lọc gió", "Đảo lốp", "Má phanh"] : ["Kiểm tra Pin", "Nước làm mát", "Dầu hộp số", "Má phanh"]) :
                 (dCo === "Xăng" ? ["Thay nhớt máy", "Nhớt láp", "Vệ sinh nồi", "Bơm lốp"] : ["Dầu láp (hộp số)", "Kiểm tra pin LFP", "Phanh", "Phuộc"]);
@@ -295,29 +253,44 @@
             uniqueAiTags.forEach(t => { addTag(t, 'tag auto', '★ '); });
             tags.forEach(t => { addTag(t, 'tag', ''); });
         }
-        
         function addTag(text, className, prefix) {
             let s = document.createElement('span'); s.className = className; s.innerText = prefix + text;
             s.onclick = () => { document.getElementById('hangMuc').value = text; tuDongDienCaiDat(); };
             document.getElementById('tagContainer').appendChild(s);
         }
 
-        // TẢI DỮ LIỆU
+        // TẢI VÀ RENDER GIAO DIỆN
         function loadVehicles() {
             const list = document.getElementById('vehicleList');
-            list.innerHTML = '<div style="text-align:center; color:#8e8e93; margin-top:20px;">Đang đồng bộ dữ liệu...</div>';
+            list.innerHTML = '<div style="text-align:center; color:#8e8e93; margin-top:20px;">Đang tải và cập nhật Garage...</div>';
             
             fetch(SCRIPT_URL).then(res => res.json()).then(data => {
                 if(data.result === 'success') {
                     serverData = data.data; aiSettings = data.aiSettings; aiTags = data.aiTags;
+                    DANH_SACH_XE_TU_DONG = data.danhSachXeTuDong; 
+                    khoiTaoDanhSachXe();
+
                     if(data.data.length === 0) { list.innerHTML = '<div style="text-align:center; color:#8e8e93; margin-top:20px;">Trống. Bấm dấu + để thêm phiếu!</div>'; return; }
                     list.innerHTML = '';
                     
                     data.data.forEach(xe => {
                         let historyHTML = '';
-                        if(xe.lichSu && xe.lichSu.length > 0) {
-                            historyHTML = '<details><summary>Lịch sử bảo dưỡng ('+xe.lichSu.length+')</summary>';
-                            xe.lichSu.slice(0, 5).forEach(h => { historyHTML += `<div class="history-item"><span>${h.ngay} - ${h.odo}km</span><span>${h.hangMuc}</span></div>`; });
+                        if(xe.lichSuFull && xe.lichSuFull.length > 0) {
+                            historyHTML = '<details open><summary>Lịch sử gần đây</summary>';
+                            
+                            xe.lichSuFull.slice(0, 5).forEach((h, index) => { 
+                                // Nếu là record mới nhất của xe này, thêm class 'latest' và sự kiện Double Click
+                                if(index === 0) {
+                                    historyHTML += `<div class="history-item latest" ondblclick="moCheDoSua('${xe.bienSo}')">
+                                        <div style="flex:1;">📅 ${h.ngay} - ${h.odo}km<br><b>${h.hangMuc}</b> <span class="edit-hint">(Nhấn đúp sửa - Còn ${3 - (h.editCount||0)} lần)</span></div>
+                                    </div>`;
+                                } else {
+                                    // Record cũ không được sửa nữa
+                                    historyHTML += `<div class="history-item">
+                                        <div style="flex:1;">📅 ${h.ngay} - ${h.odo}km<br><b>${h.hangMuc}</b></div>
+                                    </div>`;
+                                }
+                            });
                             historyHTML += '</details>';
                         }
                         
@@ -337,17 +310,77 @@
             }).catch(err => { list.innerHTML = '<div style="text-align:center; color:#ff3b30;">Mất kết nối mạng.</div>'; });
         }
 
+        // MỞ CHẾ ĐỘ SỬA BẢN GHI (KHI NHẤN ĐÚP)
+        function moCheDoSua(bienSoStr) {
+            if (window.getSelection) window.getSelection().removeAllRanges(); // Xóa bôi đen khi nhấn đúp
+            const xe = serverData.find(s => s.bienSo === bienSoStr);
+            if(!xe || xe.lichSuFull.length === 0) return;
+            
+            const latest = xe.lichSuFull[0]; // Lấy bản ghi mới nhất
+            if(latest.editCount >= 3) { alert("Bản ghi này đã hết số lần sửa đổi (Tối đa 3 lần)."); return; }
+            
+            isEditMode = true;
+            currentRowId = latest.row;
+            
+            // Đổ dữ liệu cũ vào Form
+            let idx = DANH_SACH_XE_TU_DONG.findIndex(x => x.bienSo === xe.bienSo);
+            document.getElementById('chonDanhSachXe').value = idx !== -1 ? idx : "manual";
+            document.getElementById('groupChonXe').style.display = 'none'; // Ẩn nút chọn xe để tránh đổi xe lúc sửa
+            xuLyChonXe();
+            
+            // Format ngày cũ
+            let dParts = latest.ngay.split("/");
+            document.getElementById('ngayThucHien').value = dParts[2] + "-" + dParts[1] + "-" + dParts[0];
+            document.getElementById('soKm').value = latest.odo;
+            document.getElementById('hangMuc').value = latest.hangMuc;
+            document.getElementById('chiPhi').value = latest.chiPhi || '';
+            document.getElementById('ghiChu').value = latest.ghiChu || '';
+            
+            // Phục hồi Nhắc nhở
+            document.querySelector('input[name="loaiTinhKm"][value="cong"]').checked = true; toggleLoaiTinhKm();
+            document.getElementById('valCongKm').value = latest.dinhMucKm > 0 ? latest.dinhMucKm : '';
+            document.getElementById('kmTrungBinh').value = latest.kmNgay > 0 ? latest.kmNgay : '';
+            document.getElementById('valThang').value = latest.dinhMucThang > 0 ? latest.dinhMucThang : '';
+
+            // Đổi Giao Diện Form
+            document.getElementById('formTitle').innerText = "Cập Nhật Phiếu";
+            document.getElementById('editModeBanner').style.display = 'block';
+            document.getElementById('editCountNum').innerText = 3 - (latest.editCount || 0);
+            document.getElementById('submitBtn').innerHTML = '💾 LƯU CHỈNH SỬA';
+            
+            document.getElementById('mainScreen').style.display = 'none'; 
+            document.getElementById('formScreen').style.display = 'block'; 
+            window.scrollTo(0, 0);
+        }
+
+        // MỞ CHẾ ĐỘ THÊM MỚI (BÌNH THƯỜNG)
+        function openForm() { 
+            isEditMode = false; currentRowId = null;
+            document.getElementById('formTitle').innerText = "Nhập Bảo Dưỡng";
+            document.getElementById('editModeBanner').style.display = 'none';
+            document.getElementById('groupChonXe').style.display = 'block';
+            document.getElementById('submitBtn').innerHTML = 'Hoàn Tất';
+            
+            document.getElementById('hangMuc').value = '';
+            document.getElementById('ngayThucHien').valueAsDate = new Date();
+            
+            document.getElementById('mainScreen').style.display = 'none'; 
+            document.getElementById('formScreen').style.display = 'block'; window.scrollTo(0, 0); updateTags();
+        }
+
         function tuDongChonXeTuCard(bs) {
-            let idx = DANH_SACH_XE.findIndex(x => x.bienSo === bs);
+            let idx = DANH_SACH_XE_TU_DONG.findIndex(x => x.bienSo === bs);
             document.getElementById('chonDanhSachXe').value = idx !== -1 ? idx : "manual";
             document.getElementById('bienSo').value = bs;
             xuLyChonXe(); openForm();
         }
 
-        function openForm() { document.getElementById('mainScreen').style.display = 'none'; document.getElementById('formScreen').style.display = 'block'; window.scrollTo(0, 0); updateTags();}
-        function closeForm() { document.getElementById('formScreen').style.display = 'none'; document.getElementById('mainScreen').style.display = 'block'; }
+        function closeForm() { 
+            document.getElementById('formScreen').style.display = 'none'; 
+            document.getElementById('mainScreen').style.display = 'block'; 
+        }
 
-        // LƯU FORM
+        // GỬI FORM LÊN GOOGLE SHEETS
         document.getElementById('maintenanceForm').addEventListener('submit', function(e) {
             e.preventDefault();
             if(document.getElementById('chonDanhSachXe').value === "") { alert("Vui lòng chọn xe!"); return; }
@@ -357,7 +390,6 @@
             
             const soKmHienTai = parseFloat(document.getElementById('soKm').value) || 0;
             let deltaKm = 0;
-            
             const loaiTinh = document.querySelector('input[name="loaiTinhKm"]:checked').value;
             if (loaiTinh === 'cong') {
                 deltaKm = parseFloat(document.getElementById('valCongKm').value) || 0;
@@ -369,30 +401,29 @@
             let pText = document.getElementById('tenXe').value || (document.querySelector('input[name="loaiXe"]:checked').value + " (" + document.querySelector('input[name="dongCo"]:checked').value + ")");
 
             const data = {
+                action: isEditMode ? 'edit' : 'add', // Báo cho Apps Script biết là sửa hay thêm
+                rowId: currentRowId,
                 ngayThucHien: ngayArray[2] + "/" + ngayArray[1] + "/" + ngayArray[0], 
                 phuongTienText: pText, namSuDung: "", bienSo: document.getElementById('bienSo').value.trim().toUpperCase(),
                 soKm: soKmHienTai, 
                 hangMuc: document.getElementById('hangMuc').value.trim(),
-                chiPhi: document.getElementById('chiPhi').value || 0, 
-                ghiChu: document.getElementById('ghiChu').value,
-                dinhMucKm: deltaKm, 
-                kmTrungBinh: (deltaKm > 0) ? (parseFloat(document.getElementById('kmTrungBinh').value) || 0) : 0, 
+                chiPhi: document.getElementById('chiPhi').value || 0, ghiChu: document.getElementById('ghiChu').value,
+                dinhMucKm: deltaKm, kmTrungBinh: (deltaKm > 0) ? (parseFloat(document.getElementById('kmTrungBinh').value) || 0) : 0, 
                 dinhMucThang: parseFloat(document.getElementById('valThang').value) || 0,
             };
 
-            btn.disabled = true; btn.innerHTML = 'Đang lưu...';
+            btn.disabled = true; btn.innerHTML = 'Đang xử lý...';
             statusDiv.style.background = '#e2e3e5'; statusDiv.style.color = '#383d41'; statusDiv.innerText = 'Đang đẩy lên Google Sheets...'; statusDiv.style.display = 'block';
 
             fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(data) })
             .then(() => {
-                statusDiv.style.background = '#d4edda'; statusDiv.style.color = '#155724'; statusDiv.innerText = 'Lưu thành công!';
-                document.getElementById('chonDanhSachXe').value = ""; xuLyChonXe();
-                document.getElementById('chiPhi').value = ''; document.getElementById('ghiChu').value = '';
+                statusDiv.style.background = '#d4edda'; statusDiv.style.color = '#155724'; statusDiv.innerText = isEditMode ? 'Cập nhật thành công!' : 'Lưu thành công!';
+                document.getElementById('chonDanhSachXe').value = ""; document.getElementById('chiPhi').value = ''; document.getElementById('ghiChu').value = '';
                 
                 setTimeout(() => { statusDiv.style.display = 'none'; closeForm(); loadVehicles(); }, 1500);
             }).catch(err => { 
                 statusDiv.style.background = '#f8d7da'; statusDiv.style.color = '#721c24'; statusDiv.innerText = 'Lỗi mạng!'; 
-            }).finally(() => { btn.disabled = false; btn.innerHTML = 'Hoàn Tất'; });
+            }).finally(() => { btn.disabled = false; btn.innerHTML = isEditMode ? 'LƯU CHỈNH SỬA' : 'Hoàn Tất'; });
         });
     </script>
 </body>
